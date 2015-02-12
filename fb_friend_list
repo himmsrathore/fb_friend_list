@@ -1,0 +1,142 @@
+<html>
+<head>
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
+<script src="//maxcdn.bootstrapcdn.com/bootstrap/3.3.2/js/bootstrap.min.js"></script>
+<link href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.2/css/bootstrap.min.css" rel="stylesheet">
+       
+</head>
+<body>
+<div id="fb-root"></div>
+
+<script>
+  window.fbAsyncInit = function() {
+    FB.init({
+          appId      : '157674817612822',
+          xfbml      : true,
+          version    : 'v2.2'
+        });
+      };
+      (function(d, s, id){
+         var js, fjs = d.getElementsByTagName(s)[0];
+         if (d.getElementById(id)) {return;}
+         js = d.createElement(s); js.id = id;
+         js.src = "//connect.facebook.net/en_US/sdk.js";
+         fjs.parentNode.insertBefore(js, fjs);
+       }(document, 'script', 'facebook-jssdk'));
+
+
+    FB.Event.subscribe('auth.authResponseChange', function(response) 
+    {
+     if (response.status === 'connected') 
+    {
+        document.getElementById("message").innerHTML +=  "<br>Connected to Facebook";
+        //SUCCESS
+
+    }    
+    else if (response.status === 'not_authorized') 
+    {
+        document.getElementById("message").innerHTML +=  "<br>Failed to Connect";
+
+        //FAILED
+    } else 
+    {
+        document.getElementById("message").innerHTML +=  "<br>Logged Out";
+
+        //UNKNOWN ERROR
+    }
+    }); 
+
+
+
+    function Login()
+    {
+
+        FB.login(function(response) {
+           if (response.authResponse) 
+           {
+                getUserInfo();
+            } else 
+            {
+             console.log('User cancelled login or did not fully authorize.');
+            }
+         },{scope: 'email,user_photos,user_videos'});
+
+    }
+
+
+  function getUserInfo() {
+        FB.api('/me', function(response) {
+            
+         var str ="<b>id: </b>"+response.id+"<br>";
+          str+="<b>Name</b> : "+response.name+"<br>";
+          str +="<b>Link: </b>"+response.link+"<br>";
+         
+         
+          str +="<b>Email:</b> "+response.email+"<br>";
+          str +="<input type='button' value='Get Photo' onclick='getPhoto();'/>";
+          str +="<input type='button' value='Get Friend' onclick='getFriends();'/>";
+          str +="<input type='button' value='Logout' onclick='Logout();'/>";
+          document.getElementById("status").innerHTML=str;
+
+    });
+    }
+
+function getFriends() {
+    
+    FB.api('me/friends', function(response) {
+       
+        if(response.data) {
+           
+           // alert(response.data[0].name);
+            var str="<br><br><b>Friend List</b><br>";
+            $.each(response.data,function(index,friend) {
+                //alert(friend.name + ' has id:' + friend.id);
+                str+='<img src="http://graph.facebook.com/'+friend.id+'/picture?type=square" />';
+                str+="<b>ID</b> : "+friend.id+"<br>";
+                str +="<b>Name: </b>"+friend.name+"<br>";
+                
+          });
+          document.getElementById("status").innerHTML+=str;
+        } else {
+            alert("Error!");
+        }
+    });
+}
+    function getPhoto()
+    {
+      FB.api('/me/picture?type=normal', function(response) {
+
+          var str="<br/><b>My profile Pic</b> : <img src='"+response.data.url+"'/>";
+          document.getElementById("status").innerHTML+=str;
+
+    });
+
+    }
+
+    function Logout()
+    {
+        FB.logout(function(){document.location.reload();});
+    }
+
+  // Load the SDK asynchronously
+  
+</script>
+
+
+<div align="center">
+<h2>Facebook OAuth Javascript Demo</h2>
+<hr>
+<div id="status">
+ Click on Below Image to start the demo: <br/>
+ <button class="btn btn-info" style="cursor:pointer;padding: 10px;margin:10px" onclick="Login()">Login with Facebook </button>
+</div>
+
+<br/><br/><br/><br/><br/>
+
+<div id="message">
+Logs:<br/>
+</div>
+
+</div>
+</body>
+</html>
